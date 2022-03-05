@@ -4,8 +4,11 @@ Numero de Aluno: 103597
 E-mail: andrefssantos@tecnico.ulisboa.pt
 */
 
+
+%Import do restante codigo
 :- [codigo_comum].
-%:-[puzzles_publicos].
+%:- [puzzles_publicos].
+
 
 %extrai_ilhas/3
 /*
@@ -15,18 +18,7 @@ lista ordenada (ilhas da esquerda para a direita) cujos elementos sao as
 ilhas da linha Linha.
 */
 extrai_ilhas_linha(N_L, Linha, Ilhas) :-
-    extrai_ilhas_linha(N_L, 1, Linha, Ilhas).
-
-extrai_ilhas_linha(_, _, [], []) :- !.
-
-extrai_ilhas_linha(N_L, N_C, [P | R], Ilhas) :-
-    (
-        P \== 0 ->
-        Ilhas = [ilha(P, (N_L, N_C)) | AuxIlhas];
-        Ilhas = AuxIlhas
-    ),
-    New_N_C is N_C + 1,
-    extrai_ilhas_linha(N_L, New_N_C, R, AuxIlhas).
+    findall(ilha(N_P, (N_L, N_C)), (nth1(N_C, Linha, N_P), N_P =\= 0), Ilhas).
 
 %ilhas/2
 /*
@@ -92,7 +84,8 @@ posicoes_entre(Pos1, Pos2, Posicoes) :-
 
     (
         L1 =:= L2 ->
-        findall((L1,X), between(C1, C2, X), AuxPosicoes);
+        findall((L1,X), between(C1, C2, X), AuxPosicoes)
+        ;
         C1 =:= C2,
         findall((X, C1), between(L1, L2, X), AuxPosicoes)
     ),
@@ -120,7 +113,8 @@ caminho_livre(Pos1, _, Posicoes, ilha(_, PosIlha), ilha(_, PosVizinha)) :-
     intersection(Posicoes_entre_Vizinha, Posicoes, Intersection),
 
     (
-    Intersection == [];
+    Intersection == []
+    ;
     Intersection == Posicoes,
     member(Pos1, [PosIlha, PosVizinha])
     ).   
@@ -189,7 +183,8 @@ substituido por 'X'; em caso contrario Nova_entrada eh igual a Entrada.
 marca_ilhas_terminadas_entrada(Ilhas_term, [ilha(N_Pontes, Posicao), Vizinhas, Pontes], Nova_Entrada) :-
     (
         member(ilha(N_Pontes, Posicao), Ilhas_term) ->
-        Nova_Entrada = [ilha('X', Posicao), Vizinhas, Pontes];
+        Nova_Entrada = [ilha('X', Posicao), Vizinhas, Pontes]
+        ;
         Nova_Entrada = [ilha(N_Pontes, Posicao), Vizinhas, Pontes]
     ).
     
@@ -221,9 +216,10 @@ adicionar, Entrada e a entrada com as nossas ilhas e Nova_Entrada e a Entrada.
 */
 aux_junta_pontes(Pontes_Add, Ilhas, [Ilha, Vizinhas, Pontes], Nova_Entrada) :-    
     (
-    member(Ilha, Ilhas),
-    append(Pontes_Add, Pontes, Novas_Pontes);
-    Novas_Pontes = Pontes
+        member(Ilha, Ilhas) ->
+        append(Pontes_Add, Pontes, Novas_Pontes)
+        ;
+        Novas_Pontes = Pontes
     ),
 
     Nova_Entrada = [Ilha, Vizinhas, Novas_Pontes].    
